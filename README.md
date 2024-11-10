@@ -93,9 +93,9 @@ The Travel Management System is designed to:
 
 ---
 
-## User Requirements
+## Application Requirements
 
-### User-Specific Actions
+### User-Specific Functions
 
 #### General User Actions
 - Register and log in to the platform.
@@ -116,7 +116,7 @@ The Travel Management System is designed to:
 #### Rewards Actions
 - After user succesfully books a package, predifined reward points are automatically added to its account which it can redeem in next booking.
 
-### Admin-Specific Actions
+### Admin-Specific Functions
 
 - Manage user accounts (add, update, or deactivate).
 - Create, update, and delete travel packages and destinations.
