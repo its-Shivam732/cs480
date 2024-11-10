@@ -1,7 +1,5 @@
 # Travel Booking Management System
 
-A comprehensive platform for managing travel-related operations, including user management, booking travel packages, payment handling, itinerary planning, and reviews. This system aims to streamline the travel process for users and administrators.
-
 ## Team Members
 | **Name**    |                           
 |---------------------|
@@ -23,7 +21,7 @@ A comprehensive platform for managing travel-related operations, including user 
 ---
 
 ## Overview
-
+This is a comprehensive platform for managing travel-related operations, including user management, booking travel packages, payment handling, itinerary planning, and reviews. This system aims to streamline the travel process for users and administrators.
 The Travel Management System is designed to:
 - Allow users to register, book packages, and track rewards.
 - Enable administrators to manage users, packages, reviews, and itineraries.
@@ -47,50 +45,51 @@ The Travel Management System is designed to:
 ### Entities and Relationships
 
 #### User
-- **Details**: Name, email, password, contact information, and registration date.
+- **Details**: Each user will have first Name, last name , email, password, contact information and boolean attribute is_Admin which shows if given user is admin or not.
 - **Relationships**:
   - 1:M with Booking: A user can make multiple bookings.
   - 1:1 with Rewards: A user has one rewards account.
-  - M:M with Review: A user can review multiple packages.
+  - 1:M with Review: A user can review multiple packages.
 
 #### Booking
-- **Details**: Travel dates, status, and associated package details.
+- **Details**: Booking Entity will have booking_id, package_id(associated package), user_id(associated user), Travel dates, booking_date, status details.
 - **Relationships**:
-  - M:1 with Package: A booking is linked to one package.
+  - M:1 with Package: Multiple bookings can be linked to one package.
+  - M:1 with User: Multiple booking can be linked to one user.
   - 1:1 with Payment: Each booking has a corresponding payment.
 
 #### Package
-- **Details**: Travel package descriptions, pricing, and durations.
+- **Details**: This will contain details about package like name, Travel package descriptions, pricing, duration and destination.
 - **Relationships**:
   - M:1 with Destination: Multiple packages can belong to one destination.
   - 1:M with Itinerary: A package can have multiple itineraries.
-  - M:M with Review: Packages can have multiple user reviews.
+  - 1:M with Review: One Package can have multiple user reviews.
 
 #### Payment
-- **Details**: Amount, method, and status.
+- **Details**: It contains details about booking payment like payment_date, Amount, method, status and booking id associated with it.
 - **Relationship**:
   - 1:1 with Booking: Each payment is linked to one booking.
 
 #### Destination
-- **Details**: Location details such as city, state, and country.
+- **Details**: Location details such as city, state, country and location description.
 - **Relationship**:
   - 1:M with Package: A destination can host multiple packages.
 
 #### Itinerary
-- **Details**: Activities planned for each package.
+- **Details**: This contains fields like activity name, activity description, package id and parent id which refers to another Itinerary value(sub-activity).
 - **Relationships**:
   - 1:M with Package: An itinerary belongs to a specific package.
   - Recursive (1:M): Itinerary entries can have sub-activities.
 
 #### Review
-- **Details**: Ratings and review texts for packages.
+- **Details**: It contains Ratings and reviews for particular user and package.
 - **Relationships**:
-  - M:M with User and Package: Connects users and packages through reviews.
+  - Described in Package and User entries above.
 
 #### Rewards
-- **Details**: Rewards points and last updated date.
+- **Details**: Contains Rewards points, last updated date associated with user.
 - **Relationship**:
-  - 1:1 with User: One rewards record per user.
+  - Described in User entry above.
 
 ---
 
@@ -100,24 +99,22 @@ The Travel Management System is designed to:
 
 #### General User Actions
 - Register and log in to the platform.
-- Manage personal profiles, including preferences and contact details.
+- Manage personal profiles, user can edit its own user details.
 
 #### Booking Actions
-- Browse and book travel packages.
-- Track booking status and details.
+- Browse and book travel packages. User can browse various travel package and can book any package from the list.
+- 
+- #### Itinerary Exploration
+- User can view detailed itineraries, including sub-activities associated with each package.
 
 #### Payment Actions
-- Complete secure payments for bookings.
-- Monitor payment status (e.g., Success, Failed).
+- After booking user can complete secure payments for bookings. User can also see the payment status (eg Success/Failed)
 
 #### Review Actions
-- Submit and view reviews for travel packages.
+- User can submit and view reviews for travel packages.
 
 #### Rewards Actions
-- Track rewards points and redeem them.
-
-#### Itinerary Exploration
-- View detailed itineraries, including sub-activities.
+- After user succesfully books a package, predifined reward points are automatically added to its account which it can redeem in next booking.
 
 ### Admin-Specific Actions
 
@@ -127,10 +124,3 @@ The Travel Management System is designed to:
 - Update itineraries with new activities or modifications.
 
 ---
-
-## How to Run the Project
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-repo/travel-management-system.git
-   cd travel-management-system
