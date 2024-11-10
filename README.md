@@ -103,7 +103,7 @@ The Travel Management System is designed to:
 
 #### Booking Actions
 - Browse and book travel packages. User can browse various travel package and can book any package from the list.
-- 
+
 - #### Itinerary Exploration
 - User can view detailed itineraries, including sub-activities associated with each package.
 
