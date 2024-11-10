@@ -14,7 +14,7 @@
   - [Core Features](#core-features)
 - [Data Requirements](#data-requirements)
   - [Entities and Relationships](#entities-and-relationships)
-- [User Requirements](#user-requirements)
+- [Application Requirements](#user-requirements)
   - [User-Specific Actions](#user-specific-actions)
   - [Admin-Specific Actions](#admin-specific-actions)
 
