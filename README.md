@@ -3,10 +3,10 @@
 ## Team Members
 | **Name**    |                           
 |---------------------|
-| Shivam Moudgil     | 
-| Shehriar Burney     |  
-| Aditya Bagayatkar |
-| Emily Aguilar|
+| Shivam Moudgil   smoud3@uic.edu  | 
+| Shehriar Burney   sburne4@uic.edu   |  
+| Aditya Bagayatkar  abaga@uic.edu|
+| Emily Aguilar  emily02@uic.edu|
 
 ## Table of Contents
 
