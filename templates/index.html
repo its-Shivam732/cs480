@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Booking - Sign Up / Login</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Welcome to Travel Booking</h2>
+            <p>Sign up or Login to explore amazing destinations</p>
+
+            <div class="form-toggle">
+                <button id="loginBtn" class="form-btn active" onclick="showLogin()">Login</button>
+                <button id="signupBtn" class="form-btn" onclick="showSignup()">Sign Up</button>
+            </div>
+
+            <div id="loginForm" class="form">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <select id="userType" required>
+                    <option value="guest">Guest</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <button class="submit-btn" type="button" onclick="loginUser()">Login</button>
+            </div>
+
+            <div id="signupForm" class="form" style="display:none;">
+                <input type="text" id="signupName" placeholder="Full Name" required>
+                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="password" id="signupPassword" placeholder="Password" required>
+                <input type="text" id="address" placeholder="Address" required>
+                <input type="tel" id="signupPhone" placeholder="Phone Number" required>
+                <button class="submit-btn" type="button" onclick="signupUser()">Sign Up</button>
+            </div>
+
+            <p class="footer-text">© 2024 Travel Booking | All Rights Reserved</p>
+        </div>
+    </div>
+
+    <script>
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginBtn').classList.add('active');
+            document.getElementById('signupBtn').classList.remove('active');
+        }
+
+        function showSignup() {
+            document.getElementById('signupForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupBtn').classList.add('active');
+            document.getElementById('loginBtn').classList.remove('active');
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const response = await fetch('http://127.0.0.1:5000/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Login successful');
+                console.log(data);
+                localStorage.setItem('userId', data.user.user_id);
+                // Redirect to booking.html
+                window.location.href = "booking.html";
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        }
+
+        async function signupUser() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const phone = document.getElementById('signupPhone').value;
+
+            const response = await fetch('http://127.0.0.1:5000/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    phone,
+                    registration_date: new Date().toISOString(),
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Sign up successful');
+                console.log(data);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        }
+    </script>
+</body>
+</html>

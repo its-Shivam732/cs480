@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Details</title>
+    <link rel="stylesheet" href="/static/css/stylepack.css">
+</head>
+<body>
+   <nav class="navbar">
+        <div class="logo">Travel Booking</div>
+        <div class="navbar-buttons">
+            <button class="booking-btn" onclick="viewBookingDetails()">Your Booking Details</button>
+            <button class="booking-btn" onclick="exploreDestinations()">Explore Destinations</button>
+            <button class="booking-btn" onclick="seePopularPlans()">See Popular Plans</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="package-list-container">
+            <h2>Destination Packages</h2>
+            <div id="package-list" class="package-list">
+                <!-- Packages will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for booking -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Book Your Package</h3>
+            <form id="booking-form">
+                <input type="hidden" id="package-id" name="package-id" value="">
+                <label for="travel-date">Travel Date:</label>
+                <input type="date" id="travel-date" name="travel-date" required><br><br>
+
+                <label for="payment-method">Payment Method:</label>
+                <select id="payment-method" name="payment-method" required>
+                    <option value="debit">Debit Card</option>
+                    <option value="credit">Credit Card</option>
+                </select><br><br>
+
+                <label for="card-number">Card Number:</label>
+                <input type="text" id="card-number" name="card-number" placeholder="Enter your card number" required><br><br>
+
+                <button type="submit" class="book-btn">Book</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Function to view booking details (Placeholder)
+        function viewBookingDetails() {
+            alert("Redirecting to booking details...");
+        }
+
+        // Function to see popular plans (Placeholder)
+        function seePopularPlans() {
+            alert("Redirecting to popular plans...");
+        }
+
+        // Function to explore destinations
+        function exploreDestinations() {
+            window.location.href = '/destinations.html';
+        }
+
+        // Function to get destinationId from the URL query parameters
+        function getDestinationIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('destinationId');
+        }
+
+        // Function to fetch and display packages related to the selected destination
+        async function fetchPackages() {
+            const destinationId = getDestinationIdFromUrl();
+            if (!destinationId) {
+                alert('Destination ID is missing.');
+                return;
+            }
+
+            try {
+                // Fetching packages for the selected destination from the backend
+                const response = await fetch(`/packages/${destinationId}`);
+                const packages = await response.json();
+
+                // Displaying the packages
+                const packageList = document.getElementById('package-list');
+                packageList.innerHTML = ''; // Clear any previous content
+
+                if (packages.length === 0) {
+                    packageList.innerHTML = '<p>No packages available for this destination.</p>';
+                    return;
+                }
+
+                packages.forEach(pkg => {
+                    const packageCard = document.createElement('div');
+                    packageCard.classList.add('destination-card'); // Using same class as destination cards
+
+                    // Displaying package details
+                    packageCard.innerHTML = `
+                        <h3>${pkg.package_name}</h3>
+                        <p><strong>Price:</strong> $${pkg.price}</p>
+                        <p><strong>Duration:</strong> ${pkg.duration}</p>
+                        <button class="explore-btn" onclick="bookPackage(${pkg.packageid})">Book Now</button>
+                    `;
+                    packageList.appendChild(packageCard);
+                });
+            } catch (error) {
+                console.error('Error fetching packages:', error);
+                alert('Failed to load packages. Please try again later.');
+            }
+        }
+
+        // Function to handle package booking (open modal)
+        function bookPackage(packageId) {
+        document.getElementById('package-id').value = packageId;
+            // Set the packageId in the modal or send it as part of the form submission
+            document.getElementById("booking-modal").style.display = "block";
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById("booking-modal").style.display = "none";
+        }
+
+        // Fetch the packages when the page loads
+        window.onload = fetchPackages;
+
+        // Add event listener to handle form submission
+        document.getElementById('booking-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevents form submission (to be handled by JS)
+
+            const travelDate = document.getElementById('travel-date').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            const cardNumber = document.getElementById('card-number').value;
+            const packageId = document.getElementById('package-id').value;
+
+            if (!travelDate || !paymentMethod || !cardNumber) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const bookingData = {
+                traveldate: travelDate,
+                payment_method: paymentMethod,
+                card_number: cardNumber,
+                packageid: packageId,
+                user_id: localStorage.getItem('userId'),
+                bookingdate: new Date().toISOString(),
+                bookingstatus:'done'
+
+            };
+            fetch('/bookings', {
+            method: 'POST', // HTTP method
+            headers: {
+                'Content-Type': 'application/json', // Indicate that we are sending JSON
+            },
+            body: JSON.stringify(bookingData), // Send form data as a JSON string
+        })
+        .then(response => response.json()) // Parse JSON response from backend
+        .then(data => {
+            if (data.success) {
+                alert('Booking confirmed!');
+                closeModal(); // Close the modal after booking
+            } else {
+                alert('Booking failed. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again later.');
+        });
+    });
+    </script>
+</body>
+</html>

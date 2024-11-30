@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Page</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Travel Booking</div>
+        <div class="navbar-buttons">
+            <button class="booking-btn" onclick="viewBookingDetails()">Your Booking Details</button>
+            <button class="booking-btn" onclick="exploreDestinations()">Explore Destinations</button>
+            <button class="booking-btn" onclick="getMoreInfoOnPlans()">Get More Info On Plans</button>
+        </div>
+    </nav>
+<div id="info-on-plans-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeInfoOnPlansModal()">×</span>
+        <h2>Explore More Information on Plans</h2>
+        <div class="modal-buttons">
+            <button class="modal-btn" onclick="showMostPopularPackages()">Most Popular Packages</button>
+            <button class="modal-btn" onclick="showMostPopularCity()">Get Most Popular City</button>
+            <button class="modal-btn" onclick="showSortedPackagesByPrice()">Get Sorted Price for Packages in Each Destination</button>
+        </div>
+    </div>
+</div>
+    <div class="main-content">
+        <div class="destination-list-container">
+            <h2>Explore Destinations</h2>
+            <div id="destination-list" class="destination-list">
+                <!-- Destinations will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Most Popular Packages -->
+<div id="popular-packages-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closePopularPackagesModal()">×</span>
+        <h2>Most Popular Packages</h2>
+        <table id="popular-packages-table" class="data-table">
+            <thead>
+                <tr>
+                    <th>Package Name</th>
+                    <th>Booking Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Most Popular City -->
+<div id="popular-city-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closePopularCityModal()">×</span>
+        <h2>Most Popular Cities</h2>
+        <table id="popular-city-table" class="data-table">
+            <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Booking Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Sorted Price Packages by Destination -->
+<div id="sorted-packages-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeSortedPackagesModal()">×</span>
+        <h2>Sorted Packages by Price</h2>
+        <table id="sorted-packages-table" class="data-table">
+            <thead>
+                <tr>
+                    <th>Destination</th>
+                    <th>Package Name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+    <div id="booking-details-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeBookingDetailsModal()">×</span>
+        <h2>Your Booking Details</h2>
+        <div id="booking-details"></div>
+    </div>
+</div>
+    <script>
+        function getMoreInfoOnPlans() {
+        document.getElementById("info-on-plans-modal").style.display = "block";
+    }
+
+    // Function to close the info-on-plans modal
+    function closeInfoOnPlansModal() {
+        document.getElementById("info-on-plans-modal").style.display = "none";
+    }
+        // Function to fetch and display destinations
+        async function exploreDestinations() {
+            try {
+                // Fetching all destinations from the backend
+                const response = await fetch('/destinations');
+                const destinations = await response.json();
+
+                // Showing the destinations list
+                const destinationListContainer = document.querySelector('.destination-list-container');
+                destinationListContainer.style.display = 'block';
+
+                // Displaying the fetched destinations
+                const destinationList = document.getElementById('destination-list');
+                destinationList.innerHTML = ''; // Clear any previous content
+
+                destinations.forEach(destination => {
+                    const destinationCard = document.createElement('div');
+                    destinationCard.classList.add('destination-card');
+                    // Display only country, state, and city
+                    destinationCard.innerHTML = `
+                        <h3>${destination.country}</h3>
+                        <p><strong>State:</strong> ${destination.state}</p>
+                        <p><strong>City:</strong> ${destination.city}</p>
+                        <button class="explore-btn" onclick="exploreDestinationDetails('${destination.destinationid}')">Explore</button>
+                    `;
+                    destinationList.appendChild(destinationCard);
+                });
+            } catch (error) {
+                console.error('Error fetching destinations:', error);
+                alert('Failed to load destinations. Please try again later.');
+            }
+        }
+
+        // Function to handle "Explore" button click for a specific destination
+        function exploreDestinationDetails(destinationid) {
+            // Redirecting to the destination details page with country, state, and city in the URL
+            window.location.href = `/package.html?destinationId=${destinationid}`;
+          }
+
+        // Function to view booking details
+           async function viewBookingDetails() {
+    try {
+        // Show loading state
+        const bookingDetailsDiv = document.getElementById('booking-details');
+        bookingDetailsDiv.innerHTML = '<div class="loading">Loading...</div>';
+        document.getElementById('booking-details-modal').style.display = 'block';
+
+        // Fetch booking details
+        const user_id = localStorage.getItem('userId');
+        const response = await fetch(`/bookings/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const bookingData = await response.json();
+
+        if (!response.ok) {
+            throw new Error(bookingData.message || 'Failed to fetch booking details.');
+        }
+
+        // Clear loading state
+        bookingDetailsDiv.innerHTML = '';
+
+        // Populate the modal with booking details
+        bookingData.forEach(booking => {
+            const bookingCard = document.createElement('div');
+
+            // Format dates for better readability
+            const travelDate = new Date(booking.traveldate).toLocaleDateString();
+            const bookingDate = new Date(booking.bookingdate).toLocaleDateString();
+
+            bookingCard.innerHTML = `
+                <h3><strong>Package Name:</strong>${booking.package_name}</h3>
+                <p><strong>Your Name:</strong> ${booking.name || 'N/A'}</p>
+                <p><strong>Country:</strong> ${booking.country || 'N/A'}</p>
+                <p><strong>Price:</strong> $${parseFloat(booking.price).toFixed(2)}</p>
+                <p><strong>Duration:</strong> ${booking.duration} days</p>
+                <p><strong>City:</strong> ${booking.city || 'N/A'}</p>
+                <p><strong>Travel Date:</strong> ${travelDate}</p>
+                <p><strong>Booking Date:</strong> ${bookingDate}</p>
+                <p><strong>Status:</strong> ${booking.bookingstatus}</p>
+            `;
+            bookingDetailsDiv.appendChild(bookingCard);
+        });
+
+    } catch (error) {
+        console.error('Error fetching booking details:', error);
+        document.getElementById('booking-details').innerHTML = `
+            <div class="error-message">
+                Failed to load booking details. Please try again later.
+            </div>
+        `;
+    }
+}
+
+function closeBookingDetailsModal() {
+    document.getElementById('booking-details-modal').style.display = 'none';
+}
+
+// Prevent modal from closing when clicking inside the modal content
+document.querySelector('.modal-content')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+// Close modal when clicking outside
+document.getElementById('booking-details-modal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+        closeBookingDetailsModal();
+    }
+});
+         // Function to fetch and display most popular packages
+    function showMostPopularPackages() {
+        fetch('/getpopularpkg')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("popular-packages-table").querySelector('tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                data.forEach(package => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${package.package_name}</td><td>${package.booking_count}</td>`;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById("popular-packages-modal").style.display = "block";
+            })
+            .catch(error => console.error('Error fetching popular packages:', error));
+    }
+
+    // Function to close the most popular packages modal
+    function closePopularPackagesModal() {
+        document.getElementById("popular-packages-modal").style.display = "none";
+    }
+
+    // Function to fetch and display most popular cities
+    function showMostPopularCity() {
+        fetch('/popularcity')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("popular-city-table").querySelector('tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                data.forEach(city => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${city.city}</td><td>${city.booking_count}</td>`;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById("popular-city-modal").style.display = "block";
+            })
+            .catch(error => console.error('Error fetching popular cities:', error));
+    }
+
+    // Function to close the most popular city modal
+    function closePopularCityModal() {
+        document.getElementById("popular-city-modal").style.display = "none";
+    }
+
+    // Function to fetch and display sorted packages by price
+    function showSortedPackagesByPrice() {
+        fetch('/priceperdestination')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("sorted-packages-table").querySelector('tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                data.forEach(package => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${package.destination}</td><td>${package.package_name}</td><td>${package.price}</td>`;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById("sorted-packages-modal").style.display = "block";
+            })
+            .catch(error => console.error('Error fetching sorted packages:', error));
+    }
+
+    // Function to close the sorted packages modal
+    function closeSortedPackagesModal() {
+        document.getElementById("sorted-packages-modal").style.display = "none";
+    }
+
+    </script>
+</body>
+</html>
